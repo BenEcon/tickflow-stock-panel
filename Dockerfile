@@ -16,10 +16,12 @@ WORKDIR /build
 # 因此国内网络下最稳的做法是直接用 npm 安装 pnpm(npm 会读取 .npmrc 镜像源),
 # 彻底绕开 corepack 再次联网下载 pnpm 的问题。
 RUN if [ "$USE_CN_MIRROR" = "1" ]; then npm config set registry "$NPM_REGISTRY"; fi && \
-    npm install -g pnpm@9
+    npm install -g pnpm@11
+
 # 让 pnpm 走镜像源安装依赖
 RUN if [ "$USE_CN_MIRROR" = "1" ]; then pnpm config set registry "$NPM_REGISTRY"; fi
-COPY frontend/package.json frontend/pnpm-lock.yaml* ./
+COPY frontend/package.json frontend/pnpm-lock.yaml* frontend/pnpm-workspace.yaml* ./
+
 RUN pnpm install --frozen-lockfile || pnpm install
 COPY frontend/ ./
 RUN pnpm build
